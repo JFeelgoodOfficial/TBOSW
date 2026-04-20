@@ -416,10 +416,31 @@
       .step { padding: 28px 24px; }
       .pullquote { padding-left: 20px; }
     }
+
+    @keyframes dreamShimmer {
+  0%   { opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.shimmer-overlay {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 40%, rgba(180, 220, 255, 0.18) 0%, rgba(140, 190, 255, 0.08) 50%, transparent 80%);
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0;
+  animation: none;
+}
+
+.shimmer-overlay.active {
+  animation: dreamShimmer 2.4s ease forwards;
+}
   </style>
 </head>
 <body>
-
+<div class="shimmer-overlay" id="shimmerOverlay"></div>
 <!-- HERO -->
 <section class="hero">
   <div class="hero-bg"></div>
@@ -838,6 +859,7 @@
 
       result.innerHTML = formatted;
       status.style.display = 'none';
+      triggerShimmer();
       result.style.display = 'block';
 
     } catch (e) {
@@ -879,6 +901,13 @@
       co.observe(step);
     });
   });
+
+  function triggerShimmer() {
+  const overlay = document.getElementById('shimmerOverlay');
+  overlay.classList.remove('active');
+  void overlay.offsetWidth; // force reflow so animation restarts
+  overlay.classList.add('active');
+}
 </script>
 
 </body>
