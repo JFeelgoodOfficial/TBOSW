@@ -651,6 +651,203 @@
   </div>
 </section>
 
+<!-- DREAM ANALYZER SECTION -->
+<section class="dream-analyzer-section">
+  <div class="dream-rule-top"></div>
+  <p class="dream-label">THE DREAM READER</p>
+  <h2 class="dream-heading">What did you dream?</h2>
+  <p class="dream-subtext">Write freely. Nothing here needs to be perfect. The symbols already know what they mean.</p>
+
+  <textarea
+    id="dreamInput"
+    class="dream-textarea"
+    placeholder="Describe your dream in as much detail as you can remember..."
+    rows="7"
+  ></textarea>
+
+  <button class="dream-button" onclick="interpretDream()">Interpret My Dream</button>
+
+  <div id="dreamStatus" class="dream-status" style="display:none;">Reading the symbols...</div>
+
+  <div id="dreamResult" class="dream-result" style="display:none;"></div>
+  <div class="dream-rule-bottom"></div>
+</section>
+
+<style>
+  .dream-analyzer-section {
+    max-width: 640px;
+    margin: 80px auto;
+    padding: 0 24px;
+    text-align: center;
+    font-family: Georgia, 'Times New Roman', serif;
+    color: #e8dfc8;
+  }
+
+  .dream-rule-top, .dream-rule-bottom {
+    width: 60px;
+    height: 1px;
+    background-color: #c8a84b;
+    margin: 0 auto 40px auto;
+  }
+
+  .dream-rule-bottom {
+    margin: 40px auto 0 auto;
+  }
+
+  .dream-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #c8a84b;
+    margin-bottom: 16px;
+  }
+
+  .dream-heading {
+    font-size: 2rem;
+    font-weight: 400;
+    color: #e8dfc8;
+    margin-bottom: 16px;
+    line-height: 1.3;
+  }
+
+  .dream-subtext {
+    font-size: 0.95rem;
+    color: #a89880;
+    margin-bottom: 36px;
+    line-height: 1.8;
+    font-style: italic;
+  }
+
+  .dream-textarea {
+    width: 100%;
+    background-color: #0f0e0c;
+    color: #e8dfc8;
+    border: 1px solid #2e2b25;
+    padding: 20px;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 0.95rem;
+    line-height: 1.8;
+    resize: vertical;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+  }
+
+  .dream-textarea:focus {
+    border-color: #c8a84b;
+  }
+
+  .dream-textarea::placeholder {
+    color: #4a4540;
+    font-style: italic;
+  }
+
+  .dream-button {
+    margin-top: 20px;
+    background-color: #c8a84b;
+    color: #0a0906;
+    border: none;
+    padding: 14px 36px;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .dream-button:hover {
+    background-color: #e0c06a;
+  }
+
+  .dream-button:disabled {
+    background-color: #4a4030;
+    cursor: not-allowed;
+  }
+
+  .dream-status {
+    margin-top: 36px;
+    font-style: italic;
+    color: #a89880;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+  }
+
+  .dream-result {
+    margin-top: 48px;
+    text-align: left;
+    color: #e8dfc8;
+    font-size: 0.97rem;
+    line-height: 1.9;
+    animation: dreamFadeIn 1.2s ease;
+  }
+
+  .dream-result h3 {
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #c8a84b;
+    margin-top: 40px;
+    margin-bottom: 12px;
+    font-weight: 400;
+  }
+
+  .dream-result p {
+    margin: 0 0 16px 0;
+  }
+
+  @keyframes dreamFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+
+<script>
+  async function interpretDream() {
+    const dream = document.getElementById('dreamInput').value.trim();
+    if (!dream) return;
+
+    const button = document.querySelector('.dream-button');
+    const status = document.getElementById('dreamStatus');
+    const result = document.getElementById('dreamResult');
+
+    button.disabled = true;
+    status.style.display = 'block';
+    result.style.display = 'none';
+    result.innerHTML = '';
+
+    try {
+      const res = await fetch('https://YOUR-WORKER.workers.dev/dream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dream })
+      });
+
+      const data = await res.json();
+      const text = data.analysis || 'Something went quiet. Please try again.';
+
+      // Render sections by splitting on the bold headers
+      const formatted = text
+        .replace(/\*\*The Symbols\*\*/gi, '<h3>The Symbols</h3>')
+        .replace(/\*\*The Shadow Invitation\*\*/gi, '<h3>The Shadow Invitation</h3>')
+        .replace(/\*\*The Question to Carry\*\*/gi, '<h3>The Question to Carry</h3>')
+        .split('\n')
+        .filter(line => line.trim())
+        .map(line => line.startsWith('<h3>') ? line : `<p>${line}</p>`)
+        .join('');
+
+      result.innerHTML = formatted;
+      status.style.display = 'none';
+      result.style.display = 'block';
+
+    } catch (e) {
+      status.textContent = 'Something went quiet. Please try again.';
+    }
+
+    button.disabled = false;
+  }
+</script>
+  
 <!-- FOOTER -->
 <footer>
   <p>&copy; Jfeelgood.com &nbsp;/&nbsp; The Book of Shadow Work &nbsp;/&nbsp; All Rights Reserved</p>
