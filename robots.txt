@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://thebookofshadowwork.com/sitemap.xml
+LLMs: https://thebookofshadowwork.com/llms.txt
