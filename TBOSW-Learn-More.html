@@ -1037,11 +1037,24 @@
       while (result.firstChild) result.removeChild(result.firstChild);
 
       try {
-        const res = await fetch('https://dream-reader.jfeelgoodcentral.workers.dev', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ dream })
-        });
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 30000);
+
+        let res;
+        try {
+          res = await fetch('https://dream-reader.jfeelgoodcentral.workers.dev', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ dream }),
+            signal: controller.signal
+          });
+        } finally {
+          clearTimeout(timeout);
+        }
+
+        if (!res.ok) {
+          throw new Error(`API error: ${res.status} ${res.statusText}`);
+        }
 
         const data = await res.json();
         const text = (data && typeof data.analysis === 'string') ? data.analysis : '';
@@ -1080,7 +1093,10 @@
         result.style.display = 'block';
 
       } catch (e) {
-        status.textContent = 'Something went quiet. Please try again.';
+        console.error('[Dream Reader]', e);
+        status.textContent = e.name === 'AbortError'
+          ? 'The reading timed out. Please try again.'
+          : 'Something went quiet. Please try again.';
       }
 
       button.disabled = false;
